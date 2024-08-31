@@ -6,21 +6,21 @@ part of 'component.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$selectedModelHash() => r'0603d59e3b344a6dfe8065e2a8c1b8609630b6e8';
+String _$selectedProjectHash() => r'b046eef47bbf8567efffc617ab0debb6bc38ed29';
 
-/// See also [SelectedModel].
-@ProviderFor(SelectedModel)
-final selectedModelProvider =
-    AutoDisposeNotifierProvider<SelectedModel, String>.internal(
-  SelectedModel.new,
-  name: r'selectedModelProvider',
+/// See also [SelectedProject].
+@ProviderFor(SelectedProject)
+final selectedProjectProvider =
+    AutoDisposeNotifierProvider<SelectedProject, String?>.internal(
+  SelectedProject.new,
+  name: r'selectedProjectProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$selectedModelHash,
+      : _$selectedProjectHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$SelectedModel = AutoDisposeNotifier<String>;
+typedef _$SelectedProject = AutoDisposeNotifier<String?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

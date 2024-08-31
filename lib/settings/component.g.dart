@@ -6,21 +6,19 @@ part of 'component.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$selectedModelHash() => r'0603d59e3b344a6dfe8065e2a8c1b8609630b6e8';
+String _$themeStateHash() => r'2fa339a9dd951d39bea2b51c6e0207716bf09275';
 
-/// See also [SelectedModel].
-@ProviderFor(SelectedModel)
-final selectedModelProvider =
-    AutoDisposeNotifierProvider<SelectedModel, String>.internal(
-  SelectedModel.new,
-  name: r'selectedModelProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedModelHash,
+/// See also [ThemeState].
+@ProviderFor(ThemeState)
+final themeStateProvider = NotifierProvider<ThemeState, ThemeMode>.internal(
+  ThemeState.new,
+  name: r'themeStateProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$themeStateHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$SelectedModel = AutoDisposeNotifier<String>;
+typedef _$ThemeState = Notifier<ThemeMode>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

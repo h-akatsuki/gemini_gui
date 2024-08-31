@@ -11,4 +11,12 @@ extension BuildContextExt on BuildContext {
   void pop() {
     Navigator.of(this).pop();
   }
+
+  void safePush(Widget page) {
+    if (mounted) Navigator.of(this).push(MaterialPageRoute(builder: (context) => page));
+  }
+
+  void safePop() {
+    if (mounted) Navigator.of(this).pop();
+  }
 }

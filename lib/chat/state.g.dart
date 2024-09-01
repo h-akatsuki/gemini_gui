@@ -23,7 +23,7 @@ final getChatHistoryItemsProvider =
 );
 
 typedef GetChatHistoryItemsRef = AutoDisposeProviderRef<List<ChatHistoryItem>>;
-String _$chatHistoryHash() => r'b2ade9ac32bc44511b7749e6c887d7c1003c830c';
+String _$chatHistoryHash() => r'68c6102d230fe831d5c5181e833ee233c4763fc3';
 
 /// See also [ChatHistory].
 @ProviderFor(ChatHistory)

@@ -6,21 +6,6 @@ part of 'api.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$generativeModelHash() => r'1240f5f04ee8ebd56659fa3d628cc0c27108de94';
-
-/// See also [generativeModel].
-@ProviderFor(generativeModel)
-final generativeModelProvider = AutoDisposeProvider<GenerativeModel>.internal(
-  generativeModel,
-  name: r'generativeModelProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$generativeModelHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef GenerativeModelRef = AutoDisposeProviderRef<GenerativeModel>;
 String _$apiKeyHash() => r'eef6b4aaa3dd5828b49ac525c005337f17b1f3c3';
 
 /// See also [ApiKey].
@@ -35,7 +20,23 @@ final apiKeyProvider = AutoDisposeNotifierProvider<ApiKey, String?>.internal(
 );
 
 typedef _$ApiKey = AutoDisposeNotifier<String?>;
-String _$selectedModelHash() => r'684b999ab5a98f765e4a940a52ad7f9b2e80012a';
+String _$chatInstructionHash() => r'0c356568d70809a9aac96442b07c3904b3ef2c76';
+
+/// See also [ChatInstruction].
+@ProviderFor(ChatInstruction)
+final chatInstructionProvider =
+    AutoDisposeAsyncNotifierProvider<ChatInstruction, String>.internal(
+  ChatInstruction.new,
+  name: r'chatInstructionProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$chatInstructionHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ChatInstruction = AutoDisposeAsyncNotifier<String>;
+String _$selectedModelHash() => r'e20f818d8f7e2da75258abadfd6a1dcdc3499364';
 
 /// See also [SelectedModel].
 @ProviderFor(SelectedModel)
@@ -68,7 +69,7 @@ final generatingResponseProvider =
 );
 
 typedef _$GeneratingResponse = Notifier<bool>;
-String _$generateWorkerHash() => r'dd91979f196e66f2868aca007060df0411cf6625';
+String _$generateWorkerHash() => r'eb3cebde365374ecaa11ea3495b3582a789bc16d';
 
 /// See also [GenerateWorker].
 @ProviderFor(GenerateWorker)

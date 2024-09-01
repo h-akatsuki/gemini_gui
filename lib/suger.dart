@@ -20,3 +20,8 @@ extension BuildContextExt on BuildContext {
     if (mounted) Navigator.of(this).pop();
   }
 }
+
+class WrapObject<T> {
+  T value;
+  WrapObject(this.value);
+}

@@ -20,5 +20,22 @@ final themeStateProvider = NotifierProvider<ThemeState, ThemeMode>.internal(
 );
 
 typedef _$ThemeState = Notifier<ThemeMode>;
+String _$chatInstructionTempHash() =>
+    r'8416c79f2c9139b2dadc5c64c41600761988c029';
+
+/// See also [ChatInstructionTemp].
+@ProviderFor(ChatInstructionTemp)
+final chatInstructionTempProvider =
+    AutoDisposeNotifierProvider<ChatInstructionTemp, String?>.internal(
+  ChatInstructionTemp.new,
+  name: r'chatInstructionTempProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$chatInstructionTempHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ChatInstructionTemp = AutoDisposeNotifier<String?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

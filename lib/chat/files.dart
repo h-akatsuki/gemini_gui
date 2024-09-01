@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gemini_gui/chat/state.dart';
+import 'package:gemini_gui/home/component.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -25,6 +26,10 @@ class ChatInputFiles extends _$ChatInputFiles {
     state = [];
     return result;
   }
+
+  void clear() {
+    state = [];
+  }
 }
 
 class ChatInputFileView extends ConsumerWidget {
@@ -36,17 +41,23 @@ class ChatInputFileView extends ConsumerWidget {
     if (files.isEmpty) {
       return const SizedBox();
     }
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: files.map((e) {
-        return Chip(
-          label: Text(e.name),
-          onDeleted: () {
-            ref.read(chatInputFilesProvider.notifier).remove(e);
-          },
-        );
-      }).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: files
+              .map(
+                (file) => SelectedFileComponent(
+                  file: file,
+                  onDelete: () {
+                    ref.read(chatInputFilesProvider.notifier).remove(file);
+                  },
+                ),
+              )
+              .toList(),
+        ),
+      ),
     );
   }
 }

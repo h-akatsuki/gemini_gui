@@ -44,7 +44,8 @@ Future<void> initDb() async {
       createdAt INTEGER,
       lastUpdate INTEGER,
       title TEXT,
-      data TEXT
+      data TEXT,
+      projectId INTEGER
     )
   ''');
     await txn.execute(
@@ -55,6 +56,15 @@ Future<void> initDb() async {
       name TEXT,
       mimeType TEXT,
       data BLOB
+    )
+  ''');
+    await txn.execute('''
+    CREATE TABLE IF NOT EXISTS project (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT,
+      data TEXT,
+      createdAt INTEGER,
+      lastUpdate INTEGER
     )
   ''');
   });
@@ -138,19 +148,20 @@ Future<String?> loadChat() async {
   }
 }
 
-Future<int> saveChat(String title, String data) async {
+Future<int> saveChat(String title, String data, {int? projectId}) async {
   final now = DateTime.now().millisecondsSinceEpoch;
   final res = await db.rawInsert('''
-    INSERT INTO chat (createdAt, lastUpdate, title, data) VALUES (?, ?, ?, ?)
-  ''', [now, now, title, data]);
+    INSERT INTO chat (createdAt, lastUpdate, title, data, projectId) VALUES (?, ?, ?, ?, ?)
+  ''', [now, now, title, data, projectId]);
   return res;
 }
 
-Future<void> updateChat(int id, String title, String data) async {
+Future<void> updateChat(int id, String title, String data,
+    {int? projectId}) async {
   final now = DateTime.now().millisecondsSinceEpoch;
   await db.rawUpdate('''
-    UPDATE chat SET lastUpdate = ?, title = ?, data = ? WHERE id = ?
-  ''', [now, title, data, id]);
+    UPDATE chat SET lastUpdate = ?, title = ?, data = ?, projectId = ? WHERE id = ?
+  ''', [now, title, data, projectId, id]);
 }
 
 Future<void> deleteChat(int id) async {
@@ -162,6 +173,52 @@ Future<void> deleteChat(int id) async {
 Future<String?> loadChatById(int id) async {
   final res = await db.rawQuery('''
     SELECT data FROM chat WHERE id = ?
+  ''', [id]);
+  if (res.isEmpty) {
+    return null;
+  } else {
+    return res.first['data'] as String;
+  }
+}
+
+Future<int> saveProject(String title, String data) async {
+  final now = DateTime.now().millisecondsSinceEpoch;
+  final res = await db.rawInsert('''
+    INSERT INTO project (title, data, createdAt, lastUpdate) VALUES (?, ?, ?, ?)
+  ''', [title, data, now, now]);
+  return res;
+}
+
+Future<void> updateProject(int id, String title, String data) async {
+  final now = DateTime.now().millisecondsSinceEpoch;
+  await db.rawUpdate('''
+    UPDATE project SET lastUpdate = ?, title = ?, data = ? WHERE id = ?
+  ''', [now, title, data, id]);
+}
+
+Future<void> updateProjectTitle(int id, String title) async {
+  final now = DateTime.now().millisecondsSinceEpoch;
+  await db.rawUpdate('''
+    UPDATE project SET lastUpdate = ?, title = ? WHERE id = ?
+  ''', [now, title, id]);
+}
+
+Future<void> deleteProject(int id) async {
+  await db.rawDelete('''
+    DELETE FROM project WHERE id = ?
+  ''', [id]);
+}
+
+Future<void> updateProjectLastUpdate(int id) async {
+  final now = DateTime.now().millisecondsSinceEpoch;
+  await db.rawUpdate('''
+    UPDATE project SET lastUpdate = ? WHERE id = ?
+  ''', [now, id]);
+}
+
+Future<String?> loadProject(int id) async {
+  final res = await db.rawQuery('''
+    SELECT data FROM project WHERE id = ?
   ''', [id]);
   if (res.isEmpty) {
     return null;

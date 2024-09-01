@@ -176,3 +176,68 @@ class ApiKeyTextField extends HookConsumerWidget {
     );
   }
 }
+
+@riverpod
+class ChatInstructionTemp extends _$ChatInstructionTemp {
+  @override
+  String? build() {
+    ref.onDispose(() {
+      if (state == null) {
+        return;
+      }
+      ref.read(chatInstructionProvider.notifier).set(state!);
+    });
+    return null;
+  }
+
+  void set(String instruction) => state = instruction;
+}
+
+class ChatInstructionInput extends HookConsumerWidget {
+  const ChatInstructionInput({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chatInstruction = ref.watch(chatInstructionProvider);
+    ref.watch(chatInstructionTempProvider.select((value) => null));
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: chatInstruction.when(
+        data: (data) => ChatInstructionInputInner(initialValue: data),
+        loading: () => const CircularProgressIndicator(),
+        error: (error, stack) => Text('Error: $error'),
+      ),
+    );
+  }
+}
+
+class ChatInstructionInputInner extends HookConsumerWidget {
+  final String initialValue;
+
+  const ChatInstructionInputInner({super.key, required this.initialValue});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = useTextEditingController(text: initialValue);
+
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: 'Chat Instruction',
+        hintText: 'Enter custom chat instruction',
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.save),
+          onPressed: () {
+            ref.read(chatInstructionProvider.notifier).set(controller.text);
+          },
+        ),
+      ),
+      maxLines: 7,
+      onChanged: (value) {
+        ref.read(chatInstructionTempProvider.notifier).set(value);
+      },
+    );
+  }
+}

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:gemini_gui/db/db.dart';
+import 'package:gemini_gui/project/data.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'state.g.dart';
@@ -252,13 +253,23 @@ class ChatHistory extends _$ChatHistory {
     if (state.tree.isEmpty) {
       return;
     }
+    final project = ref.read(selectedProjectProvider);
     if (state.id == null) {
       final title = state.title ?? state.tree[0].item.message.split('\n')[0];
-      final id = await saveChat(title, jsonEncode(state.toJson()));
+      final id = await saveChat(
+        title,
+        jsonEncode(state.toJson()),
+        projectId: project,
+      );
       state = state.copyWith(id: id);
     } else {
       final title = state.title ?? state.tree[0].item.message.split('\n')[0];
-      updateChat(state.id!, title, jsonEncode(state.toJson()));
+      updateChat(
+        state.id!,
+        title,
+        jsonEncode(state.toJson()),
+        projectId: project,
+      );
     }
   }
 
@@ -305,6 +316,28 @@ class ChatHistory extends _$ChatHistory {
       tree = tree.items[tree.items.length - 1];
     }
     state = state.copyWith(selected: newSelected);
+  }
+
+  void edit(int index, ChatHistoryItem item) {
+    if (index < 0 || index >= state.selected.length) {
+      return;
+    }
+    if (index == 0) {
+      state.tree.add(ChatHistoryTree(item: item, items: []));
+      state = state.copyWith(selected: [state.tree.length - 1]);
+    } else {
+      ChatHistoryTree tree = state.tree[state.selected[0]];
+      int i = 1;
+      while (i < index) {
+        tree = tree.items[state.selected[i]];
+        i++;
+      }
+      tree.items.add(ChatHistoryTree(item: item, items: []));
+      state = state.copyWith(selected: [
+        ...state.selected.sublist(0, index),
+        tree.items.length - 1,
+      ]);
+    }
   }
 }
 

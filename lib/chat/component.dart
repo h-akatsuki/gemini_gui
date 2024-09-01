@@ -58,6 +58,7 @@ class UserMessage extends HookWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   MarkdownBody(
+                    selectable: true,
                     data: message,
                     styleSheet: MarkdownStyleSheet(
                       p: TextStyle(
@@ -123,6 +124,7 @@ class BotMessage extends HookWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: MarkdownBody(
+                selectable: true,
                 data: message,
                 styleSheet: MarkdownStyleSheet(
                   p: TextStyle(
@@ -435,13 +437,32 @@ class AutoSwitchMessage extends ConsumerWidget {
                 ),
               ),
             ],
-          ).then((value) {
-            if (value == 'copy') {
-              Clipboard.setData(ClipboardData(text: message.message));
-            } else if (value == 'edit') {
-              //TODO: Implement edit function
-            }
-          });
+          ).then(
+            (value) {
+              if (value == 'copy') {
+                Clipboard.setData(ClipboardData(text: message.message));
+              } else if (value == 'edit') {
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return EditDialog(
+                        initialText: message.message,
+                        onConfirm: (value) {
+                          final item =
+                              ChatHistoryItem.user(value, files: message.files);
+                          ref
+                              .read(chatHistoryProvider.notifier)
+                              .edit(index, item);
+                          ref.read(generateWorkerProvider.notifier).generate();
+                        },
+                      );
+                    },
+                  );
+                }
+              }
+            },
+          );
         },
       );
     } else if (message.error) {
@@ -460,6 +481,46 @@ class AutoSwitchMessage extends ConsumerWidget {
   }
 }
 
+class EditDialog extends HookWidget {
+  final String initialText;
+  final void Function(String) onConfirm;
+  const EditDialog(
+      {super.key, required this.initialText, required this.onConfirm});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = useTextEditingController(text: initialText);
+    return AlertDialog(
+      title: const Text('Enter Text'),
+      content: TextField(
+        controller: controller,
+        maxLines: null,
+        keyboardType: TextInputType.multiline,
+        decoration: const InputDecoration(
+          hintText: 'Enter your text here',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => context.pop(),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: context.colorScheme.error),
+          ),
+        ),
+        FilledButton(
+          onPressed: () {
+            onConfirm(controller.text);
+            context.pop();
+          },
+          child: const Text('Confirm'),
+        ),
+      ],
+    );
+  }
+}
+
 class Messages extends HookConsumerWidget {
   const Messages({super.key});
 
@@ -475,5 +536,23 @@ class Messages extends HookConsumerWidget {
         return AutoSwitchMessage(index: index);
       },
     );
+  }
+}
+
+class LockIconButton extends ConsumerWidget {
+  final Widget button;
+
+  const LockIconButton({super.key, required this.button});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final worker = ref.watch(generateWorkerProvider);
+    return worker == WorkerState.idle
+        ? button
+        : IconButton(
+            icon: const Icon(Icons.lock),
+            onPressed: () {},
+            tooltip: 'Generating...',
+          );
   }
 }

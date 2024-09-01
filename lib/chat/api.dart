@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gemini_gui/chat/state.dart';
 import 'package:gemini_gui/db/db.dart';
+import 'package:gemini_gui/project/data.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -35,6 +37,25 @@ class ApiKey extends _$ApiKey {
   }
 }
 
+const _chatCustomInstructionKey = '__chat_custom_instruction__';
+
+@riverpod
+class ChatInstruction extends _$ChatInstruction {
+  @override
+  Future<String> build() async {
+    return await getKV(_chatCustomInstructionKey) ?? '';
+  }
+
+  Future<void> set(String value) async {
+    state = AsyncData(value);
+    await save();
+  }
+
+  Future<void> save() async {
+    await setKV(_chatCustomInstructionKey, await future);
+  }
+}
+
 @freezed
 class GeminiModel with _$GeminiModel {
   const factory GeminiModel({
@@ -56,21 +77,11 @@ const models = [
 @riverpod
 class SelectedModel extends _$SelectedModel {
   @override
-  GeminiModel build() => models[0];
+  GeminiModel build() => models[2];
 
   void setModel(GeminiModel model) {
     state = model;
   }
-}
-
-@riverpod
-GenerativeModel generativeModel(GenerativeModelRef ref) {
-  final apiKey = ref.watch(apiKeyProvider);
-  if (apiKey == null) {
-    throw Exception('API key is required');
-  }
-  final model = ref.watch(selectedModelProvider);
-  return GenerativeModel(model: model.model, apiKey: apiKey);
 }
 
 enum WorkerState {
@@ -126,10 +137,46 @@ class GenerateWorker extends _$GenerateWorker {
       return;
     }
     try {
-      final generativeModel = ref.read(generativeModelProvider);
+      final apiKey = ref.read(apiKeyProvider);
+      if (apiKey == null) {
+        throw Exception('API key is required');
+      }
+      final model = ref.read(selectedModelProvider);
       final history = ref.read(getChatHistoryItemsProvider);
+      final select = ref.read(selectedProjectProvider);
+      Content? content;
+      Content? attachment;
+      if (select != null) {
+        final text = await loadProject(select);
+        final data = ProjectData.fromJson(jsonDecode(text!));
+        final con = [
+          if (data.customInstruction.isNotEmpty)
+            TextPart(data.customInstruction),
+        ];
+        if (data.customInstruction.isNotEmpty) {
+          content = Content(
+            'system',
+            con,
+          );
+        }
+        if (data.files.isNotEmpty) {
+          attachment = Content.multi([
+            for (final file in data.files) ...[
+              TextPart('Attachment(Reference materials): ${file.name}'),
+              DataPart(file.mimeType, (await loadFile(file.id))!)
+            ]
+          ]);
+        }
+      } else {
+        final text = await ref.read(chatInstructionProvider.future);
+        if (text.isNotEmpty) content = Content.system(text);
+      }
       final send = List<Content>.empty(growable: true);
-      //TODO: send.add(Content.system(''));
+      if (attachment != null) {
+        send.add(attachment);
+      }
+      final generativeModel = GenerativeModel(
+          model: model.model, apiKey: apiKey, systemInstruction: content);
       for (final item in history) {
         if (item.error) {
           throw Exception('Error in chat history');
@@ -137,14 +184,18 @@ class GenerateWorker extends _$GenerateWorker {
         if (item.isUser) {
           send.add(Content.multi([
             TextPart(item.message),
-            for (final file in item.files)
-              DataPart(file.mimeType, (await loadFile(file.id))!),
+            for (final file in item.files) ...[
+              TextPart('Attachment: ${file.name}'),
+              DataPart(file.mimeType, (await loadFile(file.id))!)
+            ],
           ]));
         } else {
           send.add(Content.model([
             TextPart(item.message),
-            for (final file in item.files)
-              DataPart(file.mimeType, (await loadFile(file.id))!),
+            for (final file in item.files) ...[
+              TextPart('Attachment: ${file.name}'),
+              DataPart(file.mimeType, (await loadFile(file.id))!)
+            ],
           ]));
         }
       }

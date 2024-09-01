@@ -34,10 +34,13 @@ class CameraPage extends HookConsumerWidget {
         if (e is CameraException) {
           switch (e.code) {
             case 'CameraAccessDenied':
-              // TODO: Handle access errors here.
+              debugPrint(
+                  'Error: The user did not grant the camera permission!');
+              if (context.mounted) Navigator.of(context).pop();
               break;
             default:
-              // TODO: Handle other errors here.
+              debugPrint('Error: $e');
+              if (context.mounted) Navigator.of(context).pop();
               break;
           }
         }

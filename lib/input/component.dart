@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:gemini_gui/chat/component.dart';
 import 'package:gemini_gui/suger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -141,12 +142,15 @@ class ChatInput extends HookConsumerWidget {
                   const SizedBox(width: 4),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3),
-                    child: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: handleSubmit,
-                      style: IconButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.primary,
-                        padding: EdgeInsets.zero,
+                    child: LockIconButton(
+                      button: IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: handleSubmit,
+                        style: IconButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          padding: EdgeInsets.zero,
+                        ),
                       ),
                     ),
                   ),

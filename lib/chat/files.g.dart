@@ -6,7 +6,7 @@ part of 'files.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatInputFilesHash() => r'de17248a50c4418fb1fcc3afdec9f3e85e875500';
+String _$chatInputFilesHash() => r'f7325fe2267be3b15c03725f10f6fc82e13f30d2';
 
 /// See also [ChatInputFiles].
 @ProviderFor(ChatInputFiles)

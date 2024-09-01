@@ -15,6 +15,7 @@ class SettingsPage extends HookConsumerWidget {
         children: const [
           ApiKeyTextField(),
           SettingsThemeSelector(),
+          ChatInstructionInput(),
         ],
       ),
     );

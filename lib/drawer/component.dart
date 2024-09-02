@@ -67,7 +67,11 @@ class ConversationList extends HookConsumerWidget {
             if (snapshot.hasData) {
               final data = snapshot.data!;
               return ListTile(
-                title: Text(data.title),
+                title: Text(
+                  data.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 onTap: () {
                   ref.read(chatHistoryProvider.notifier).load(data.id);
                   context.pop();

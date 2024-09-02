@@ -3,6 +3,36 @@
 part of 'api.dart';
 
 // **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$GeminiModelImpl _$$GeminiModelImplFromJson(Map<String, dynamic> json) =>
+    _$GeminiModelImpl(
+      model: json['model'] as String,
+      title: json['title'] as String,
+    );
+
+Map<String, dynamic> _$$GeminiModelImplToJson(_$GeminiModelImpl instance) =>
+    <String, dynamic>{
+      'model': instance.model,
+      'title': instance.title,
+    };
+
+_$ModelsDataImpl _$$ModelsDataImplFromJson(Map<String, dynamic> json) =>
+    _$ModelsDataImpl(
+      models: (json['models'] as List<dynamic>)
+          .map((e) => GeminiModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lastUpdate: json['lastUpdate'] as String,
+    );
+
+Map<String, dynamic> _$$ModelsDataImplToJson(_$ModelsDataImpl instance) =>
+    <String, dynamic>{
+      'models': instance.models,
+      'lastUpdate': instance.lastUpdate,
+    };
+
+// **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
@@ -36,7 +66,22 @@ final chatInstructionProvider =
 );
 
 typedef _$ChatInstruction = AutoDisposeAsyncNotifier<String>;
-String _$selectedModelHash() => r'e20f818d8f7e2da75258abadfd6a1dcdc3499364';
+String _$modelsHash() => r'c08b6db51be24183d387ca0b41e6c861117760dd';
+
+/// See also [Models].
+@ProviderFor(Models)
+final modelsProvider =
+    AutoDisposeNotifierProvider<Models, List<GeminiModel>>.internal(
+  Models.new,
+  name: r'modelsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$modelsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$Models = AutoDisposeNotifier<List<GeminiModel>>;
+String _$selectedModelHash() => r'8452eb9132a6c1199077aca61226f9b06e06bf3d';
 
 /// See also [SelectedModel].
 @ProviderFor(SelectedModel)
@@ -69,7 +114,7 @@ final generatingResponseProvider =
 );
 
 typedef _$GeneratingResponse = Notifier<bool>;
-String _$generateWorkerHash() => r'eb3cebde365374ecaa11ea3495b3582a789bc16d';
+String _$generateWorkerHash() => r'c48a1d996fb20960d2e04dd41eb5ddcde7e696b8';
 
 /// See also [GenerateWorker].
 @ProviderFor(GenerateWorker)

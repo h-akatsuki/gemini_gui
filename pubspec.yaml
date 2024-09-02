@@ -55,6 +55,9 @@ dependencies:
   file_picker: ^8.0.7
   mime: ^1.0.6
   image_picker: ^1.1.2
+  glob: ^2.1.2
+  rust_lib_gemini_gui:
+    path: rust_builder
 
 dev_dependencies:
   flutter_test:

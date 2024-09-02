@@ -66,6 +66,7 @@ class SelectedFileComponent extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDirectory = file.mimeType == 'directory';
     final isImage = file.mimeType.startsWith('image/');
     return SizedBox(
       key: ValueKey(("file", file.id)),
@@ -76,7 +77,11 @@ class SelectedFileComponent extends HookWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (isImage) FileImage(file: file) else _buildFileInfo(context),
+            isDirectory
+                ? FolderIcon(file: file)
+                : isImage
+                    ? FileImage(file: file)
+                    : _buildFileInfo(context),
             Positioned(
               top: 4,
               right: 4,
@@ -108,6 +113,34 @@ class SelectedFileComponent extends HookWidget {
               color: context.colorScheme.onSurfaceVariant,
             ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            file.name,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FolderIcon extends StatelessWidget {
+  final ChatFileItem file;
+
+  const FolderIcon({super.key, required this.file});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: context.colorScheme.surfaceContainerHighest,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.folder),
           const SizedBox(height: 4),
           Text(
             file.name,

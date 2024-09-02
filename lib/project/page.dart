@@ -168,25 +168,46 @@ class ProjectSettingsPageInner extends HookConsumerWidget {
                 ),
               ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () async {
-                FilePickerResult? result =
-                    await FilePicker.platform.pickFiles(allowMultiple: true);
-                if (result != null) {
-                  List<File> files0 =
-                      result.paths.map((path) => File(path!)).toList();
-                  List<ChatFileItem> addedFiles = [];
-                  for (var file in files0) {
-                    final chatFile = await toChatFile(file);
-                    addedFiles.add(chatFile);
-                  }
-                  if (addedFiles.isNotEmpty) {
-                    files.value = [...files.value, ...addedFiles];
-                  }
-                }
-              },
-              icon: const Icon(Icons.upload_file),
-              label: const Text('Upload File'),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      FilePickerResult? result = await FilePicker.platform
+                          .pickFiles(allowMultiple: true);
+                      if (result != null) {
+                        List<File> files0 =
+                            result.paths.map((path) => File(path!)).toList();
+                        List<ChatFileItem> addedFiles = [];
+                        for (var file in files0) {
+                          final chatFile = await toChatFile(file);
+                          addedFiles.add(chatFile);
+                        }
+                        if (addedFiles.isNotEmpty) {
+                          files.value = [...files.value, ...addedFiles];
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Upload File'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      final String? selectedDirectory =
+                          await FilePicker.platform.getDirectoryPath();
+                      if (selectedDirectory != null) {
+                        final file = await dirToChatFile(selectedDirectory);
+                        files.value = [...files.value, file];
+                      }
+                    },
+                    icon: const Icon(Icons.folder),
+                    label: const Text('Register directory'),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             Text('Edit Custom Instructions',

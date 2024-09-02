@@ -480,7 +480,7 @@ packages:
     source: sdk
     version: "0.0.0"
   glob:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: glob
       sha256: "0e7014b3b7d4dac1ca4d6114f82bf1782ee86745b9b42a92c9289c23d8a0ab63"
@@ -908,6 +908,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.13"
+  rust_lib_gemini_gui:
+    dependency: "direct main"
+    description:
+      path: rust_builder
+      relative: true
+    source: path
+    version: "0.0.1"
   rxdart:
     dependency: transitive
     description:

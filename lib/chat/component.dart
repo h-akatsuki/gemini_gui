@@ -341,6 +341,7 @@ class ModelSelecter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedModel = ref.watch(selectedModelProvider);
+    final models = ref.watch(modelsProvider);
     return Row(
       children: [
         Text(

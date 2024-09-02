@@ -6,6 +6,7 @@ import 'package:gemini_gui/home/page.dart';
 import 'package:gemini_gui/settings/component.dart';
 import 'package:gemini_gui/theme.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:gemini_gui/src/rust/frb_generated.dart';
 
 Future<void> initPathTask() async {
   await initPath();
@@ -16,10 +17,7 @@ Future<void> initPathTask() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Future.wait([
-    initPathTask(),
-    initCameras(),
-  ]);
+  await Future.wait([initPathTask(), initCameras(), RustLib.init()]);
   runApp(const ProviderScope(child: GeminiGUI()));
 }
 

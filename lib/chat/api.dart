@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gemini_gui/chat/state.dart';
 import 'package:gemini_gui/db/db.dart';
+import 'package:gemini_gui/db/file.dart';
 import 'package:gemini_gui/project/data.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'api.freezed.dart';
@@ -62,9 +66,12 @@ class GeminiModel with _$GeminiModel {
     required String model,
     required String title,
   }) = _GeminiModel;
+
+  factory GeminiModel.fromJson(Map<String, dynamic> json) =>
+      _$GeminiModelFromJson(json);
 }
 
-const models = [
+const _models = [
   GeminiModel(model: 'gemini-1.5-pro-exp-0827', title: '1.5 Pro (0827)'),
   GeminiModel(model: 'gemini-1.5-flash-exp-0827', title: '1.5 Flash (0827)'),
   GeminiModel(
@@ -74,10 +81,65 @@ const models = [
   GeminiModel(model: 'gemini-1.5-flash', title: '1.5 Flash'),
 ];
 
+const modelsURL = "https://gemini.hiro.red";
+const modelsKey = '__models__';
+
+@freezed
+class ModelsData with _$ModelsData {
+  const factory ModelsData({
+    required List<GeminiModel> models,
+    required String lastUpdate,
+  }) = _ModelsData;
+
+  factory ModelsData.fromJson(Map<String, dynamic> json) =>
+      _$ModelsDataFromJson(json);
+}
+
+@riverpod
+class Models extends _$Models {
+  @override
+  List<GeminiModel> build() {
+    Future(load);
+    return _models;
+  }
+
+  Future<void> load() async {
+    final data = await getKV(modelsKey);
+    if (data != null) {
+      final models = ModelsData.fromJson(jsonDecode(data));
+      state = models.models;
+      if (DateTime.now().difference(DateTime.parse(models.lastUpdate)).inHours <
+          12) {
+        return;
+      }
+    }
+    try {
+      final response = await http.get(Uri.parse('$modelsURL/models.json'));
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as List<dynamic>;
+        final models = json.map((e) => GeminiModel.fromJson(e)).toList();
+        state = models;
+        await save();
+      }
+    } catch (e) {
+      debugPrint('Error loading models: $e');
+    }
+  }
+
+  Future<void> save() async {
+    final data =
+        ModelsData(models: state, lastUpdate: DateTime.now().toIso8601String());
+    await setKV(modelsKey, jsonEncode(data.toJson()));
+  }
+}
+
 @riverpod
 class SelectedModel extends _$SelectedModel {
   @override
-  GeminiModel build() => models[2];
+  GeminiModel build() {
+    final models = ref.watch(modelsProvider);
+    return models.first;
+  }
 
   void setModel(GeminiModel model) {
     state = model;
@@ -142,10 +204,9 @@ class GenerateWorker extends _$GenerateWorker {
         throw Exception('API key is required');
       }
       final model = ref.read(selectedModelProvider);
-      final history = ref.read(getChatHistoryItemsProvider);
       final select = ref.read(selectedProjectProvider);
       Content? content;
-      Content? attachment;
+      final attachment = List<Part>.empty(growable: true);
       if (select != null) {
         final text = await loadProject(select);
         final data = ProjectData.fromJson(jsonDecode(text!));
@@ -160,24 +221,43 @@ class GenerateWorker extends _$GenerateWorker {
           );
         }
         if (data.files.isNotEmpty) {
-          attachment = Content.multi([
-            for (final file in data.files) ...[
-              TextPart('Attachment(Reference materials): ${file.name}'),
-              DataPart(file.mimeType, (await loadFile(file.id))!)
-            ]
-          ]);
+          for (final file in data.files) {
+            if (file.mimeType == 'directory') {
+              final name = utf8.decode((await loadFile(file.id))!);
+              final dir = Directory(name);
+              final dirParts = await dirToChatPart(dir);
+              attachment.addAll(dirParts);
+              continue;
+            }
+            final head =
+                TextPart('Attachment(Reference materials): ${file.name}');
+            final data = DataPart(file.mimeType, (await loadFile(file.id))!);
+            attachment.add(head);
+            attachment.add(data);
+          }
         }
       } else {
         final text = await ref.read(chatInstructionProvider.future);
         if (text.isNotEmpty) content = Content.system(text);
       }
       final send = List<Content>.empty(growable: true);
-      if (attachment != null) {
-        send.add(attachment);
-      }
       final generativeModel = GenerativeModel(
           model: model.model, apiKey: apiKey, systemInstruction: content);
-      for (final item in history) {
+      {
+        final item = history.first;
+        if (!item.isUser) {
+          throw Exception('Error in chat history');
+        }
+        send.add(Content.multi([
+          ...attachment,
+          TextPart(item.message),
+          for (final file in item.files) ...[
+            TextPart('Attachment: ${file.name}'),
+            DataPart(file.mimeType, (await loadFile(file.id))!)
+          ],
+        ]));
+      }
+      for (final item in history.skip(1)) {
         if (item.error) {
           throw Exception('Error in chat history');
         }

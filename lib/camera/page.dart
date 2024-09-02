@@ -75,33 +75,35 @@ class CameraPage extends HookConsumerWidget {
     }
 
     return Scaffold(
-      body: Stack(
-        children: [
-          CameraPreview(controller),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back,
-                        color: context.colorScheme.onSurface),
-                    onPressed: () => context.pop(),
-                  ),
-                  const Spacer(),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: FloatingActionButton(
-                      child: const Icon(Icons.camera),
-                      onPressed: () => takePicture(context, controller),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            CameraPreview(controller),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back,
+                          color: context.colorScheme.onSurface),
+                      onPressed: () => context.pop(),
                     ),
-                  ),
-                ],
+                    const Spacer(),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: FloatingActionButton(
+                        child: const Icon(Icons.camera),
+                        onPressed: () => takePicture(context, controller),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

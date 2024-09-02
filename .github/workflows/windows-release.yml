@@ -1,0 +1,58 @@
+name: Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  release_file_name: "release"
+
+jobs:
+  build:
+    name: Build and Release Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.1"
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Enable windows build
+        run: flutter config --enable-windows-desktop
+
+      - name: Build windows
+        run: flutter build windows --release
+
+      - name: Zip Release
+        uses: thedoctor0/zip-release@main
+        with:
+          type: "zip"
+          filename: "${{ env.release_file_name }}-windows.zip"
+          directory: build\windows\x64\runner\Release
+
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-exe
+          path: build/windows/x64/runner/Release/${{ env.release_file_name }}-windows.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/windows/x64/runner/Release/${{ env.release_file_name }}-windows.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

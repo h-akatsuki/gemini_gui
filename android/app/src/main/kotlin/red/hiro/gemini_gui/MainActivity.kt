@@ -1,4 +1,4 @@
-package com.example.gemini_gui
+package red.hiro.gemini_gui
 
 import io.flutter.embedding.android.FlutterActivity
 

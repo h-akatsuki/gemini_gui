@@ -17,7 +17,9 @@ Leveraging the generous free tier offered by many Gemini API providers, this cli
 
 ## Screenshot
 
-(Screenshots will be added here soon)
+| Chat Screen | Project Settings |
+|---|---|
+| ![chat](https://github.com/user-attachments/assets/043fc8d8-298a-41c3-ab3a-624b8b857770) | ![project](https://github.com/user-attachments/assets/64aa34a1-31ae-4595-8c19-d727462d46e1) |
 
 ## Current Limitations
 
@@ -36,6 +38,7 @@ While pre-built binaries are currently provided for Android and Windows, the pro
 Projects allow you to group related Gemini interactions and relevant files together. Each project can contain multiple folders and files, allowing you to provide rich context and instructions to the Gemini models.
 
 **Project Structure**
+
 
 - You can add any files or folders to the project.
 - Folders and files can be organized within a project to create a structured workspace.

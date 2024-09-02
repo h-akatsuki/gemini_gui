@@ -11,50 +11,52 @@ class ChatAppDrawer extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Drawer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Projects',
-                  style: context.textTheme.titleMedium?.copyWith(
-                    color: context.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Drawer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Projects',
+                    style: context.textTheme.titleMedium?.copyWith(
+                      color: context.colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  padding: const EdgeInsets.all(0),
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    context.push(const ProjectSettingsPage());
-                  },
-                  icon: const Icon(Icons.add),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    padding: const EdgeInsets.all(0),
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      context.push(const ProjectSettingsPage());
+                    },
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const CustomProjectList(),
-          const Divider(),
-          const Expanded(
-            child: ConversationList(),
-          ),
-          const Divider(),
-          ListTile(
-            leading: Icon(Icons.settings, color: context.colorScheme.primary),
-            title: Text('Settings',
-                style: TextStyle(color: context.colorScheme.primary)),
-            onTap: () {
-              context.push(const SettingsPage());
-            },
-          ),
-        ],
+            const CustomProjectList(),
+            const Divider(),
+            const Expanded(
+              child: ConversationList(),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.settings, color: context.colorScheme.primary),
+              title: Text('Settings',
+                  style: TextStyle(color: context.colorScheme.primary)),
+              onTap: () {
+                context.push(const SettingsPage());
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

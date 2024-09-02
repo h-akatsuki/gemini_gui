@@ -24,11 +24,40 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final apikey = ref.watch(apiKeyProvider.select((value) => value != null));
     if (!apikey) {
-      return const APIKeyIsNotSet();
+      return const Scaffold(
+        body: APIKeyIsNotSet(),
+      );
     }
     return Scaffold(
       key: _scaffoldKey,
       drawer: const ChatAppDrawerLock(),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: LockIconButton(
+          button: IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+            tooltip: 'Open menu',
+          ),
+        ),
+        title: const ModelSelecter(),
+        actions: [
+          LockIconButton(
+            button: IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                ref.read(chatInputFilesProvider.notifier).clear();
+                ref.read(chatHistoryProvider.notifier).clear();
+              },
+              tooltip: 'New chat',
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -39,9 +68,6 @@ class HomePage extends HookConsumerWidget {
         },
         child: Column(
           children: [
-            ChatAppHeader(drawerOpen: () {
-              _scaffoldKey.currentState?.openDrawer();
-            }),
             const ProjectHeader(),
             const Expanded(
               child: Stack(

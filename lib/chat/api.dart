@@ -72,6 +72,8 @@ class GeminiModel with _$GeminiModel {
 }
 
 const _models = [
+  GeminiModel(model: 'gemini-1.5-pro-002', title: '1.5 Pro (002)'),
+  GeminiModel(model: 'gemini-1.5-flash-002', title: '1.5 Flash (002)'),
   GeminiModel(model: 'gemini-1.5-pro-exp-0827', title: '1.5 Pro (0827)'),
   GeminiModel(model: 'gemini-1.5-flash-exp-0827', title: '1.5 Flash (0827)'),
   GeminiModel(
